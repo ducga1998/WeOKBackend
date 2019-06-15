@@ -48,6 +48,28 @@ getAll.cloudant = function (response) {
   });
   //return names;
 }
+getAll.follow = function (res) {
+  var names = [];
+  mydb.list({ include_docs: true }, function (err, body) {
+    if (!err) {
+      const arr = [
+        0913856293,
+        0913945073,
+        0927479395
+      ]
+      // body.rows
+      // arr.filter(item => body.rows)
+      body.rows.filter(item => {
+        return arr.includes(item.doc.phone)
+      }).forEach(function (row) {
+        console.log('row rowrow row', row)
+        if (row.doc.name && row.doc.relationship)
+          names.push(row.doc);
+      });
+      res.json(names);
+    }
+  });
+}
 
 let collectionName = 'mycollection'; // MongoDB requires a collection name.
 
@@ -100,17 +122,7 @@ app.post("/api/visitors", function (request, response) {
   insertOne[vendor](doc, response);
 });
 
-/**
- * Endpoint to get a JSON array of all the visitors in the database
- * REST API example:
- * <code>
- * GET http://localhost:3000/api/visitors
- * </code>
- *
- * Response:
- * [ "Bob", "Jane" ]
- * @return An array of all the visitor names
- */
+
 app.get("/api/users", function (request, response) {
   var names = [];
   if (!mydb) {
@@ -119,6 +131,27 @@ app.get("/api/users", function (request, response) {
   }
   getAll[vendor](response);
 });
+app.get('/api/profile', function (req, res) {
+  return req.send({
+    name: "Nguyen Minh Duc",
+    phone: 919259462,
+    lastLocation: "Rubik Ocean, 6 Dương Đình Nghệ, Yên Hoà, Cầu Giấy, Hà Nội, Vietnam",
+    closed: [
+      "0913856293",
+      " 0913945073",
+      " 0927479395"
+    ],
+    safe: false,
+    relationship: "father",
+    latlng: {
+      latutude: 21.033292,
+      longitude: 105.780826
+    }
+  })
+})
+app.get('/api/follow', (req, res) => {
+  getAll.follow(res)
+})
 
 // load local VCAP configuration  and service credentials
 var vcapLocal;
