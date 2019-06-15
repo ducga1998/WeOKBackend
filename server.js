@@ -22,7 +22,17 @@ var dbName = 'mydb';
 
 var insertOne = {};
 var getAll = {};
-
+insertOne.deleteAll = function (doc, response) {
+  mydb.deleteAll(doc, function (err, body, header) {
+    if (err) {
+      console.log('[mydb.insert] ', err.message);
+      response.send("Error");
+      return;
+    }
+    doc._id = body.id;
+    response.send(doc);
+  });
+}
 insertOne.cloudant = function (doc, response) {
   mydb.insert(doc, function (err, body, header) {
     if (err) {
@@ -36,14 +46,18 @@ insertOne.cloudant = function (doc, response) {
 }
 
 getAll.cloudant = function (response) {
-  var names = [];
+  // mydb.collection(collectionName).remove({})
+  var obj = [];
   mydb.list({ include_docs: true }, function (err, body) {
     if (!err) {
       body.rows.forEach(function (row) {
-        if (row.doc.name)
-          names.push(row.doc.name);
+        console.log('row', row)
+        if (row.doc.name && row.doc.rel && row.doc.phone && row.doc.check)
+          obj.push(row.doc);
       });
-      response.json(names);
+      // names= obj.filter(name => !)
+      // console.log('cascas', names)
+      response.send(obj);
     }
   });
   //return names;
@@ -52,27 +66,31 @@ getAll.cloudant = function (response) {
 let collectionName = 'mycollection'; // MongoDB requires a collection name.
 
 insertOne.mongodb = function (doc, response) {
-  mydb.collection(collectionName).insertOne(doc, function (err, body, header) {
-    if (err) {
-      console.log('[mydb.insertOne] ', err.message);
-      response.send("Error");
-      return;
-    }
-    doc._id = body.id;
-    response.send(doc);
-  });
+  console.log('request')
+  mydb.collection(collectionName).remove({})
+  // mydb.collection(collectionName).insertOne(doc, function (err, body, header) {
+  //   if (err) {
+  //     console.log('[mydb.insertOne] ', err.message);
+  //     response.send("Error");
+  //     return;
+  //   }
+  //   doc._id = body.id;
+  //   response.send(doc);
+  // });
 }
+
 
 getAll.mongodb = function (response) {
   var names = [];
-  mydb.collection(collectionName).find({}, { fields: { _id: 0, count: 0 } }).toArray(function (err, result) {
-    if (!err) {
-      result.forEach(function (row) {
-        names.push(row.name);
-      });
-      response.json(names);
-    }
-  });
+  mydb.collection(collectionName).remove({})
+  // mydb.collection(collectionName).find({}, { fields: { _id: 0, count: 0 } }).toArray(function (err, result) {
+  //   if (!err) {
+  //     result.forEach(function (row) {
+  //       names.push(row.name);
+  //     });
+  //     response.json(names);
+  //   }
+  // });
 }
 
 /* Endpoint to greet and add a new visitor to database.
@@ -82,36 +100,28 @@ getAll.mongodb = function (response) {
 * }
 */
 app.post("/api/visitors", function (request, response) {
-  var userName = request.body.name;
-  var doc = { "name": userName };
-  console.log('doc')
+  // var {name} = request.body.name;
+  var { phone, name, rel } = request.body;
+  var data = { phone, name, rel, check: true };
+  // console.log('doc')
   if (!mydb) {
     console.log("No database.");
-    response.send(doc);
+    response.send(data);
     return;
   }
-  insertOne[vendor](doc, response);
+  console.log('vendor', vendor)
+  insertOne[vendor](data, response);
 });
 
-/**
- * Endpoint to get a JSON array of all the visitors in the database
- * REST API example:
- * <code>
- * GET http://localhost:3000/api/visitors
- * </code>
- *
- * Response:
- * [ "Bob", "Jane" ]
- * @return An array of all the visitor names
- */
-app.get("/api/visitors", function (request, response) {
+app.get("/api/users", function (request, response) {
   var names = [];
   if (!mydb) {
     console.log('names', names)
     response.json(names);
     return;
   }
-  getAll[vendor](response);
+  // console.log('names', response)
+  getAll.cloudant(response)
 });
 
 // load local VCAP configuration  and service credentials
@@ -183,10 +193,12 @@ if (cloudant) {
 
   // Specify the database we are going to use (mydb)...
   mydb = cloudant.db.use(dbName);
-
+  // cloudant.db.delete(dbName).remove({})
   vendor = 'cloudant';
 }
-
+app.get('/deleteAll', (req, res) => {
+  // console.log('mydb.collection(collectionName)', mydb.collection(collectionName))
+})
 //serve static file (index.html, images, css)
 app.use(express.static(__dirname + '/views'));
 
