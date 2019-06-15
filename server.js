@@ -132,7 +132,7 @@ app.get("/api/users", function (request, response) {
   getAll[vendor](response);
 });
 app.get('/api/profile', function (req, res) {
-  return req.send({
+  return res.send({
     name: "Nguyen Minh Duc",
     phone: 919259462,
     lastLocation: "Rubik Ocean, 6 Dương Đình Nghệ, Yên Hoà, Cầu Giấy, Hà Nội, Vietnam",
