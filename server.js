@@ -192,7 +192,7 @@ app.use(express.static(__dirname + '/views'));
 
 
 app.get("/api/weather", (req, res) => {
-  return res.send('dcấccjancajksnuc')
+  return res.send('dcấcsấckjcnajsncjkasnkcnkasncasncjancajksnuc')
 })
 var port = process.env.PORT || 3000
 app.listen(port, function () {
