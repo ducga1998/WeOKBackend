@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html>
 
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hello World</title>
 
     <!-- Bootstrap -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="js/lib/jquery.i18n/jquery.i18n.js"></script>
     <script src="js/lib/jquery.i18n/jquery.i18n.messagestore.js"></script>
     <script src="js/lib/jquery.i18n/jquery.i18n.fallbacks.js"></script>
@@ -47,24 +51,38 @@
             $('#user_name').attr("placeholder", $.i18n('name') );
         });
         </script>
+  </head>
 
-</head>
-
-<body>
+  <body>
     <div class="container" id="container">
-        <h1 data-i18n="welcome"></h1> <!-- Welcome -->
-        <div id="nameInput" class="input-group-lg center-block helloInput">
-            <p class="lead" data-i18n="what_is_your_name"></p>
-          Name :   <input id="user_name" type="text" class="form-control" value="" />
-          Phone   <input id="user_phone" type="text" class="form-control" value="" />
-            rel :   <input id="user_rel" type="text" class="form-control"  value="" />
-       <button onclick="sumit()">submit</button>
-        </div>
-        <p id="response" class="lead text-center"></p>
+      <h1 data-i18n="welcome"></h1> <!-- Welcome -->
+      <div id="nameInput" class="input-group-lg center-block helloInput">
+        <p class="lead" data-i18n="what_is_your_name"></p>
 
-        <p id="databaseNames" class="lead text-center"></p>
+        Name : <input id="name" type="text" class="form-control"
+          value="" />
+        Phone <input id="phone" type="text" class="form-control"
+          value="" />
+        lastLocation : <input id="lastLocation" type="text"
+          class="form-control"
+          value="" />
+        closed : <input id="closed" type="text" class="form-control"
+          value="" />
+        relationship <input id="relationship" type="text"
+          class="form-control"
+          value="" />
+        latutude : <input id="latutude" type="text" class="form-control"
+          value="" />
+        longitude : <input id="longitude" type="text"
+          class="form-control"
+          value="" />
+        <button onclick="sumit()">submit</button>
+      </div>
+      <p id="response" class="lead text-center"></p>
+
+      <p id="databaseNames" class="lead text-center"></p>
     </div>
-</body>
+  </body>
 
 
 </html>
@@ -81,40 +99,34 @@
             }
         });
         function sumit(){
-            var name = $('#user_name').val();
-            var phone = $('#user_phone').val();
-            var rel = $('#user_rel').val();
+            var name = $('#name').val();
+            var phone = parseFloat($('#phone').val());
+             var lastLocation = $('#lastLocation').val();
+              var closed = $('#closed').val().split(".");
+            var relationship = $('#relationship').val();
+               var latutude = parseFloat($('#latutude').val());
+                var longitude = parseFloat($('#longitude').val());
+
+            console.log({name, phone, lastLocation, closed, relationship, latutude, longitude})
               $.ajax({
 				  method: "POST",
 				  url: "./api/visitors",
 				  contentType: "application/json",
-				  data: JSON.stringify({name, phone, rel })
+				  data: JSON.stringify({name, phone, lastLocation, closed, relationship, latutude, longitude})
 				})
-                .done(function(data) {
-                    if(data && data.name){
-                        if(data._id)
-                            $('#response').html($.i18n('added_to_database', AntiXSS.sanitizeInput(data.name)));
-                        else
-                            $('#response').html($.i18n('hello', AntiXSS.sanitizeInput(data.name))); 
-                    }
-                    else {
-                        $('#response').html(AntiXSS.sanitizeInput(data));
-                    }
-                    $('#nameInput').hide();
-                    getNames();
-                });
+                 
         }
         //Retrieve all the visitors from the database
         function getNames(){
           $.get("./api/users")
               .done(function(data) {
-                  {% comment %} console.log(data) {% endcomment %}
+                 
                   if(data.length > 0) {
                     data.forEach(function(element, index) {
                       data[index] = AntiXSS.sanitizeInput(element)
                     });
                     console.log('data',data)
-                    $('#databaseNames').html(  JSON.stringify(data).name) ;
+                    $('#databaseNames').html( JSON.stringify(data).name) ;
                   }
               });
           }

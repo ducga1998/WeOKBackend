@@ -21,6 +21,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.15.x",
     "mongodb": "^3.0.10",
+    "mongoose": "^5.6.0",
     "nodemon": "^1.19.1"
   },
   "author": "IBM Corp",

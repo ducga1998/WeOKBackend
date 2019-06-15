@@ -22,17 +22,7 @@ var dbName = 'mydb';
 
 var insertOne = {};
 var getAll = {};
-insertOne.deleteAll = function (doc, response) {
-  mydb.deleteAll(doc, function (err, body, header) {
-    if (err) {
-      console.log('[mydb.insert] ', err.message);
-      response.send("Error");
-      return;
-    }
-    doc._id = body.id;
-    response.send(doc);
-  });
-}
+
 insertOne.cloudant = function (doc, response) {
   mydb.insert(doc, function (err, body, header) {
     if (err) {
@@ -46,18 +36,14 @@ insertOne.cloudant = function (doc, response) {
 }
 
 getAll.cloudant = function (response) {
-  // mydb.collection(collectionName).remove({})
-  var obj = [];
+  var names = [];
   mydb.list({ include_docs: true }, function (err, body) {
     if (!err) {
       body.rows.forEach(function (row) {
-        console.log('row', row)
-        if (row.doc.name && row.doc.rel && row.doc.phone && row.doc.check)
-          obj.push(row.doc);
+        if (row.doc.name && row.doc.relationship)
+          names.push(row.doc);
       });
-      // names= obj.filter(name => !)
-      // console.log('cascas', names)
-      response.send(obj);
+      response.json(names);
     }
   });
   //return names;
@@ -66,31 +52,27 @@ getAll.cloudant = function (response) {
 let collectionName = 'mycollection'; // MongoDB requires a collection name.
 
 insertOne.mongodb = function (doc, response) {
-  console.log('request')
-  mydb.collection(collectionName).remove({})
-  // mydb.collection(collectionName).insertOne(doc, function (err, body, header) {
-  //   if (err) {
-  //     console.log('[mydb.insertOne] ', err.message);
-  //     response.send("Error");
-  //     return;
-  //   }
-  //   doc._id = body.id;
-  //   response.send(doc);
-  // });
+  mydb.collection(collectionName).insertOne(doc, function (err, body, header) {
+    if (err) {
+      console.log('[mydb.insertOne] ', err.message);
+      response.send("Error");
+      return;
+    }
+    doc._id = body.id;
+    response.send(doc);
+  });
 }
-
 
 getAll.mongodb = function (response) {
   var names = [];
-  mydb.collection(collectionName).remove({})
-  // mydb.collection(collectionName).find({}, { fields: { _id: 0, count: 0 } }).toArray(function (err, result) {
-  //   if (!err) {
-  //     result.forEach(function (row) {
-  //       names.push(row.name);
-  //     });
-  //     response.json(names);
-  //   }
-  // });
+  mydb.collection(collectionName).find({}, { fields: { _id: 0, count: 0 } }).toArray(function (err, result) {
+    if (!err) {
+      result.forEach(function (row) {
+        names.push(row.name);
+      });
+      response.json(names);
+    }
+  });
 }
 
 /* Endpoint to greet and add a new visitor to database.
@@ -99,29 +81,43 @@ getAll.mongodb = function (response) {
 *   "name": "Bob"
 * }
 */
+var ok = true
+
 app.post("/api/visitors", function (request, response) {
-  // var {name} = request.body.name;
-  var { phone, name, rel } = request.body;
-  var data = { phone, name, rel, check: true };
-  // console.log('doc')
+
+  ok = !ok
+  console.log('response.body', response.body)
+  const { name, phone, lastLocation, closed, relationship, latutude, longitude } = request.body
+
+  // var  = request.body;
+  var doc = { name, phone, lastLocation, closed, safe: ok, relationship, latlng: { latutude, longitude } }
+  console.log('result', doc)
   if (!mydb) {
     console.log("No database.");
-    response.send(data);
+    response.send(doc);
     return;
   }
-  console.log('vendor', vendor)
-  insertOne[vendor](data, response);
+  insertOne[vendor](doc, response);
 });
 
+/**
+ * Endpoint to get a JSON array of all the visitors in the database
+ * REST API example:
+ * <code>
+ * GET http://localhost:3000/api/visitors
+ * </code>
+ *
+ * Response:
+ * [ "Bob", "Jane" ]
+ * @return An array of all the visitor names
+ */
 app.get("/api/users", function (request, response) {
   var names = [];
   if (!mydb) {
-    console.log('names', names)
     response.json(names);
     return;
   }
-  // console.log('names', response)
-  getAll.cloudant(response)
+  getAll[vendor](response);
 });
 
 // load local VCAP configuration  and service credentials
@@ -193,19 +189,15 @@ if (cloudant) {
 
   // Specify the database we are going to use (mydb)...
   mydb = cloudant.db.use(dbName);
-  // cloudant.db.delete(dbName).remove({})
+
   vendor = 'cloudant';
 }
-app.get('/deleteAll', (req, res) => {
-  // console.log('mydb.collection(collectionName)', mydb.collection(collectionName))
-})
+
 //serve static file (index.html, images, css)
 app.use(express.static(__dirname + '/views'));
 
 
-app.get("/api/weather", (req, res) => {
-  return res.send('dcấcsấckjcnajsncjkasnkcnkasncasncjancajksnuc')
-})
+
 var port = process.env.PORT || 3000
 app.listen(port, function () {
   console.log("To view your app, open this link in your browser: http://localhost:" + port);
