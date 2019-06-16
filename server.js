@@ -53,9 +53,9 @@ getAll.follow = function (res) {
   mydb.list({ include_docs: true }, function (err, body) {
     if (!err) {
       const arr = [
-        0913856293,
-        0913945073,
-        0927479395
+        0916429373,
+        0956947563,
+        0932849829
       ]
       // body.rows
       // arr.filter(item => body.rows)
@@ -131,21 +131,22 @@ app.get("/api/users", function (request, response) {
   }
   getAll[vendor](response);
 });
+
 app.get('/api/profile', function (req, res) {
   return res.send({
     name: "Nguyen Minh Duc",
     phone: 919259462,
-    lastLocation: "Rubik Ocean, 6 Dương Đình Nghệ, Yên Hoà, Cầu Giấy, Hà Nội, Vietnam",
+    lastLocation: "Học viện CNTT Bách Khoa",
     closed: [
       "0913856293",
-      " 0913945073",
-      " 0927479395"
+      "0913945073",
+      "0927479395"
     ],
     safe: false,
     relationship: "father",
     latlng: {
-      latutude: 21.033292,
-      longitude: 105.780826
+      latutude: 21.003817,
+      longitude: 105.847747,
     }
   })
 })
@@ -235,3 +236,43 @@ var port = process.env.PORT || 3000
 app.listen(port, function () {
   console.log("To view your app, open this link in your browser: http://localhost:" + port);
 });
+
+// tate = {
+//   me: {
+//       name: 'Undefined Team',
+//       phone: '123760340239',
+//       lastLocation: 'Dong Da, Hanoi, Vietnam',
+//       closed: ['1234567890', '0987654321'],
+//       safe: true,
+//       latlng: {
+//           latitude: 21.003817,
+//           longitude: 105.847747,
+//       }
+//   },
+//   following: [
+//       {
+//           name: 'Abcde',
+//           phone: '123760340239',
+//           lastLocation: 'Dong Da, Hanoi, Vietnam',
+//           closed: ['1234567890', '0987654321'],
+//           safe: true,
+//           latlng: {
+//               latitude: 21.013817,
+//               longitude: 105.846747,
+//           }
+//       },
+//       {
+//           name: 'Bcdefg',
+//           phone: '123760340239',
+//           lastLocation: 'Dong Da, Hanoi, Vietnam',
+//           closed: ['1234567890', '0987654321'],
+//           safe: true,
+//           latlng: {
+//               latitude: 21.002817,
+//               longitude: 105.844747,
+//           }
+//       },
+//   ],
+
+// }
+// }
