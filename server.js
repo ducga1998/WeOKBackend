@@ -35,6 +35,18 @@ insertOne.cloudant = function (doc, response) {
   });
 }
 
+var updateDocument = function (callback) {
+  console.log("Updating document 'mydoc'");
+  // make a change to the document, using the copy we kept from reading it back
+  doc.c = true;
+  db.insert(doc, function (err, data) {
+    console.log('Error:', err);
+    console.log('Data:', data);
+    // keep the revision of the update so we can delete it
+    doc._rev = data.rev;
+    callback(err, data);
+  });
+};
 getAll.cloudant = function (response) {
   var names = [];
   mydb.list({ include_docs: true }, function (err, body) {
@@ -53,9 +65,8 @@ getAll.follow = function (res) {
   mydb.list({ include_docs: true }, function (err, body) {
     if (!err) {
       const arr = [
-        0916429373,
         0956947563,
-        0932849829
+        0915460230
       ]
       // body.rows
       // arr.filter(item => body.rows)
@@ -140,7 +151,8 @@ app.get('/api/profile', function (req, res) {
     closed: [
       "0913856293",
       "0913945073",
-      "0927479395"
+      "0927479395",
+      // "919259462"
     ],
     safe: false,
     relationship: "father",
